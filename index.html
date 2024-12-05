@@ -61,23 +61,52 @@
             <!-- Catálogo -->
             <div class="row g-4">
                 <div class="col-md-4" v-for="card in filteredCards" :key="card.name">
-                    <div class="card">
+                    <div class="card" @click="viewDetails(card)">
                         <img
                             :src="card.img"
                             class="card-img-top"
                             :alt="`Imagen de ${card.name}`"
-                            @click="viewDetails(card)"
                         />
                         <div class="card-body text-center">
                             <h5 class="card-title">{{ card.name }}</h5>
                             <p class="card-text">Nivel: {{ card.level }}</p>
                             
-                            <button class="btn btn-primary" @click="viewDetails(card)">Ver Detalles</button>
+                            <button class="btn btn-primary" @click.stop="redirectToDetails(card)">Ver Detalles</button>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
+
+        <!-- Modal Detalle del Producto -->
+        <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="productModalLabel">{{ selectedProduct.name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <img :src="selectedProduct.img" class="img-fluid rounded" :alt="`Imagen de ${selectedProduct.name}`">
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Categoría:</strong> Nivel {{ selectedProduct.level }}</p>
+                                <p><strong>Tipo:</strong> {{ selectedProduct.type }}</p>
+                                <p><strong>ID:</strong> {{ selectedProduct.id }}</p>
+                                <p><strong>Descripción:</strong> {{ selectedProduct.description || 'No disponible' }}</p>
+                                <p><strong>Precio:</strong> ${{ selectedProduct.price }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary">Agregar al Carrito</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Pie de página -->
         <footer class="bg-dark text-center text-white py-3">
@@ -89,6 +118,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
     <!-- Axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <!-- App Script -->
     <script>
         const app = Vue.createApp({
@@ -99,6 +130,7 @@
                     categories: [],
                     searchQuery: "",
                     selectedCategory: "",
+                    selectedProduct: {},
                     maxItems: 209 // Limitar a los primeros 20 productos
                 };
             },
@@ -148,10 +180,60 @@
                     this.applyFilters();  // Re-aplicamos el filtro después de un cambio
                 },
 
-                // Método para ver detalles del producto
+                // Método para ver detalles del producto en un modal flotante
                 viewDetails(card) {
+                    // Asignar tipo aleatorio si aún no está asignado
+                    if (!card.type || card.type === "Desconocido") {
+                        const types = ["Agua", "Fuego", "Tierra", "Aire", "Luz", "Oscuridad"];
+                        card.type = types[Math.floor(Math.random() * types.length)];
+                    }
+
+                    // Asignar precio basado en categoría si no está definido
+                    if (!card.price) {
+                        this.assignPriceBasedOnCategory(card);
+                    }
+
+                    this.selectedProduct = card;
+                    const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+                    productModal.show();
+                },
+
+                // Método para redirigir a la página de detalles
+                redirectToDetails(card) {
                     localStorage.setItem('selectedProduct', JSON.stringify(card));
                     window.location.href = 'detalles.html';
+                },
+
+                assignPriceBasedOnCategory(card) {
+                    let priceRange;
+                    switch (card.level) {
+                        case 'Ultimate':
+                            priceRange = [425, 1200];
+                            break;
+                        case 'Mega':
+                            priceRange = [250, 420];
+                            break;
+                        case 'Champion':
+                            priceRange = [200, 245];
+                            break;
+                        case 'Armor':
+                            priceRange = [135, 195];
+                            break;
+                        case 'Rookie':
+                            priceRange = [90, 130];
+                            break;
+                        case 'In Training':
+                            priceRange = [50, 85];
+                            break;
+                        case 'Fresh':
+                            priceRange = [25, 45];
+                            break;
+                        default:
+                            priceRange = [10, 20];
+                            break;
+                    }
+                    const [min, max] = priceRange;
+                    card.price = (Math.floor(Math.random() * ((max - min) / 5 + 1)) * 5) + min;
                 }
             },
             mounted() {
