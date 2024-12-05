@@ -72,14 +72,16 @@
                     const storedProduct = localStorage.getItem('selectedProduct');
                     if (storedProduct) {
                         this.product = JSON.parse(storedProduct);
-                        if (!this.product.price) {
-                            this.assignPriceBasedOnCategory();
-                        }
                         // Asignar un valor aleatorio de tipo solo si no está asignado
-                        if (!this.product.type) {
+                        if (!this.product.type || this.product.type === 'Desconocido') {
                             const types = ["Agua", "Fuego", "Tierra", "Aire", "Luz", "Oscuridad"];
                             this.product.type = types[Math.floor(Math.random() * types.length)];
                         }
+                        if (!this.product.price) {
+                            this.assignPriceBasedOnCategory();
+                        }
+                        // Actualizar el producto en el almacenamiento local para mantener el tipo
+                        localStorage.setItem('selectedProduct', JSON.stringify(this.product));
                     }
                 },
                 assignPriceBasedOnCategory() {
