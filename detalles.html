@@ -14,8 +14,8 @@
         <!-- Menú de ruta -->
         <nav aria-label="breadcrumb" class="my-4">
             <ol class="breadcrumb bg-warning p-3 rounded" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-                <li class="breadcrumb-item"><a href="index.html" class="text-dark fw-bold" @click="goBackToCatalog"><i class="fas fa-home"></i> Menú Principal</a></li>
-                <li class="breadcrumb-item active fw-bold" aria-current="page"><i class="fas fa-book-open"></i> {{ product.name }}</li>
+                <li class="breadcrumb-item"><a href="index.html" class="text-dark fw-bold" @click="regresarAlCatalogo"><i class="fas fa-home"></i> Menú Principal</a></li>
+                <li class="breadcrumb-item active fw-bold" aria-current="page"><i class="fas fa-book-open"></i> {{ producto.name }}</li>
             </ol>
         </nav>
 
@@ -24,30 +24,30 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="card shadow-lg p-3 mb-5 bg-body-tertiary rounded" style="background: linear-gradient(135deg, #ffffff, #f5f5f5);">
-                        <img :src="product.img" class="img-fluid rounded" :alt="`Imagen de ${product.name}`" style="border: 4px solid #f39c12; box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);">
+                        <img :src="producto.img" class="img-fluid rounded" :alt="`Imagen de ${producto.name}`" style="border: 4px solid #f39c12; box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);">
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="product-details bg-light p-4 rounded" style="box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);">
-                        <h2 class="display-5 text-primary">{{ product.name }}</h2>
-                        <p><i class="fas fa-layer-group text-warning"></i> <strong>Categoría:</strong> Nivel {{ product.level }}</p>
-                        <p><i class="fas fa-fire text-danger"></i> <strong>Tipo:</strong> {{ product.type }}</p>
-                        <p><i class="fas fa-hashtag text-secondary"></i> <strong>ID:</strong> {{ product.id || 'Desconocido' }}</p>
-                        <p><i class="fas fa-book-open text-info"></i> <strong>Descripción:</strong> {{ product.description || 'No disponible' }}</p>
-                        <p><i class="fas fa-dollar-sign text-success"></i> <strong>Precio:</strong> ${{ product.price }}</p>
+                    <div class="detalles-producto bg-light p-4 rounded" style="box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);">
+                        <h2 class="display-5 text-primary">{{ producto.name }}</h2>
+                        <p><i class="fas fa-layer-group text-warning"></i> <strong>Categoría:</strong> Nivel {{ producto.level }}</p>
+                        <p><i class="fas fa-fire text-danger"></i> <strong>Tipo:</strong> {{ producto.type }}</p>
+                        <p><i class="fas fa-hashtag text-secondary"></i> <strong>ID:</strong> {{ producto.id || 'Desconocido' }}</p>
+                        <p><i class="fas fa-book-open text-info"></i> <strong>Descripción:</strong> {{ producto.description || 'No disponible' }}</p>
+                        <p><i class="fas fa-dollar-sign text-success"></i> <strong>Precio:</strong> ${{ producto.price }}</p>
                         
                         <!-- Sección adicional de estadísticas -->
                         <div class="mt-4">
-                            <p><i class="fas fa-heart text-danger"></i> <strong>HP:</strong> {{ product.hp || '1500' }}</p>
-                            <p><i class="fas fa-shield-alt text-info"></i> <strong>Defensa:</strong> {{ product.defense || '800' }}</p>
-                            <p><i class="fas fa-fist-raised text-warning"></i> <strong>Ataque:</strong> {{ product.attack || '1200' }}</p>
+                            <p><i class="fas fa-heart text-danger"></i> <strong>HP:</strong> {{ producto.hp || '1500' }}</p>
+                            <p><i class="fas fa-shield-alt text-info"></i> <strong>Defensa:</strong> {{ producto.defense || '800' }}</p>
+                            <p><i class="fas fa-fist-raised text-warning"></i> <strong>Ataque:</strong> {{ producto.attack || '1200' }}</p>
                         </div>
 
                         <!-- Sección de cantidad -->
                         <div class="d-flex align-items-center my-4">
-                            <button class="btn btn-outline-secondary" @click="decrementQuantity" :disabled="quantity === 1">-</button>
-                            <input type="text" class="form-control text-center mx-2" :value="quantity" readonly style="width: 50px;">
-                            <button class="btn btn-outline-secondary" @click="incrementQuantity" :disabled="quantity === 6">+</button>
+                            <button class="btn btn-outline-secondary" @click="disminuirCantidad" :disabled="cantidad === 1">-</button>
+                            <input type="text" class="form-control text-center mx-2" :value="cantidad" readonly style="width: 50px;">
+                            <button class="btn btn-outline-secondary" @click="aumentarCantidad" :disabled="cantidad === 6">+</button>
                         </div>
                         <button class="btn btn-primary btn-lg shadow">Agregar al Carrito <i class="fas fa-shopping-cart"></i></button>
                     </div>
@@ -63,75 +63,75 @@
         const app = Vue.createApp({
             data() {
                 return {
-                    product: {},
-                    quantity: 1
+                    producto: {},
+                    cantidad: 1
                 };
             },
             methods: {
-                getProductFromStorage() {
-                    const storedProduct = localStorage.getItem('selectedProduct');
-                    if (storedProduct) {
-                        this.product = JSON.parse(storedProduct);
+                obtenerProductoDelStorage() {
+                    const productoAlmacenado = localStorage.getItem('selectedProduct');
+                    if (productoAlmacenado) {
+                        this.producto = JSON.parse(productoAlmacenado);
                         // Asignar un valor aleatorio de tipo solo si no está asignado
-                        if (!this.product.type || this.product.type === 'Desconocido') {
-                            const types = ["Agua", "Fuego", "Tierra", "Aire", "Luz", "Oscuridad"];
-                            this.product.type = types[Math.floor(Math.random() * types.length)];
+                        if (!this.producto.type || this.producto.type === 'Desconocido') {
+                            const tipos = ["Agua", "Fuego", "Tierra", "Aire", "Luz", "Oscuridad"];
+                            this.producto.type = tipos[Math.floor(Math.random() * tipos.length)];
                         }
-                        if (!this.product.price) {
-                            this.assignPriceBasedOnCategory();
+                        if (!this.producto.price) {
+                            this.asignarPrecioSegunCategoria();
                         }
                         // Actualizar el producto en el almacenamiento local para mantener el tipo
-                        localStorage.setItem('selectedProduct', JSON.stringify(this.product));
+                        localStorage.setItem('selectedProduct', JSON.stringify(this.producto));
                     }
                 },
-                assignPriceBasedOnCategory() {
-                    const category = this.product.level;
-                    let priceRange;
-                    switch (category) {
+                asignarPrecioSegunCategoria() {
+                    const categoria = this.producto.level;
+                    let rangoPrecio;
+                    switch (categoria) {
                         case 'Ultimate':
-                            priceRange = [425, 1200];
+                            rangoPrecio = [425, 1200];
                             break;
                         case 'Mega':
-                            priceRange = [250, 420];
+                            rangoPrecio = [250, 420];
                             break;
                         case 'Champion':
-                            priceRange = [200, 245];
+                            rangoPrecio = [200, 245];
                             break;
                         case 'Armor':
-                            priceRange = [135, 195];
+                            rangoPrecio = [135, 195];
                             break;
                         case 'Rookie':
-                            priceRange = [90, 130];
+                            rangoPrecio = [90, 130];
                             break;
                         case 'In Training':
-                            priceRange = [50, 85];
+                            rangoPrecio = [50, 85];
                             break;
                         case 'Fresh':
-                            priceRange = [25, 45];
+                            rangoPrecio = [25, 45];
                             break;
                         default:
-                            priceRange = [10, 20];
+                            rangoPrecio = [10, 20];
                             break;
                     }
-                    const [min, max] = priceRange;
-                    this.product.price = (Math.floor(Math.random() * ((max - min) / 5 + 1)) * 5) + min;
+                    const [min, max] = rangoPrecio;
+                    this.producto.price = (Math.floor(Math.random() * ((max - min) / 5 + 1)) * 5) + min;
                 },
-                incrementQuantity() {
-                    if (this.quantity < 6) {
-                        this.quantity++;
+                aumentarCantidad() {
+                    if (this.cantidad < 6) {
+                        this.cantidad++;
                     }
                 },
-                decrementQuantity() {
-                    if (this.quantity > 1) {
-                        this.quantity--;
+                disminuirCantidad() {
+                    if (this.cantidad > 1) {
+                        this.cantidad--;
                     }
                 },
-                goBackToCatalog() {
+                regresarAlCatalogo() {
                     history.back();
                 }
             },
             mounted() {
-                this.getProductFromStorage();
+                this.obtenerProductoDelStorage();
             }
         });
 
